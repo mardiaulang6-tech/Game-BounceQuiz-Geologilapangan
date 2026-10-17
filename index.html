@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BounceQuiz AI — Geologi Lapangan</title>
+<style>
+:root{--green:#087f5b;--deep:#064e3b;--lime:#b7f171;--orange:#ffb454;--ink:#15332b;--muted:#62756e;--paper:#f4faf6;--white:#fff;--line:#dcebe2;--red:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#eaf8ef,#f6fbff 55%,#fff7e8);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,var(--deep),var(--green));color:white;padding:24px clamp(16px,4vw,48px);box-shadow:0 8px 28px #064e3b25}
+.head{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:14px}.logo{width:54px;height:54px;border-radius:18px;background:var(--lime);color:var(--deep);display:grid;place-items:center;font-size:28px;font-weight:900;box-shadow:inset 0 0 0 3px #ffffff55}.brand h1{margin:0;font-size:clamp(24px,4vw,36px);letter-spacing:-1px}.brand p{margin:3px 0 0;color:#d6f5e4;font-size:14px}.tag{background:#ffffff20;border:1px solid #ffffff55;padding:9px 13px;border-radius:999px;font-size:13px;font-weight:700}
+main{max-width:1200px;margin:24px auto;padding:0 16px 40px}.intro{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}.intro h2{margin:0 0 5px;font-size:22px}.intro p{margin:0;color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.stat{background:#ffffffd9;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 5px 16px #174f3010}.stat .label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}.stat .value{font-size:25px;font-weight:850;margin-top:4px;color:var(--deep)}.progress-track{height:8px;background:#e2eee7;border-radius:999px;overflow:hidden;margin-top:10px}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#10b981,#b7f171);transition:width .3s}
+.layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,.8fr);gap:18px;align-items:start}.panel{background:#ffffffed;border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 28px #174f3010;overflow:hidden}.panel-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.panel-head h3{margin:0;font-size:17px}.panel-head small{color:var(--muted)}.playfield{position:relative;min-height:430px;height:min(56vw,540px);max-height:540px;overflow:hidden;background:radial-gradient(ellipse at 20% 20%,#d8f8df,transparent 42%),radial-gradient(ellipse at 90% 80%,#ffefcf,transparent 40%),linear-gradient(135deg,#f4fbf5,#eaf6f1);border-bottom:1px solid var(--line);touch-action:pan-y}
+.playfield:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#0b6b4510 1px,transparent 1px),linear-gradient(90deg,#0b6b4510 1px,transparent 1px);background-size:30px 30px;pointer-events:none}
+.ball{position:absolute;border:0;border-radius:50%;width:48px;height:48px;display:grid;place-items:center;color:white;font-weight:900;font-size:14px;cursor:pointer;box-shadow:inset -5px -7px 12px #0002,inset 3px 4px 8px #ffffff75,0 5px 10px #064e3b22;transition:transform .15s,filter .15s;z-index:1}.ball:hover{transform:scale(1.14);filter:brightness(1.08);z-index:4}.ball:focus-visible{outline:3px solid #ffb454;outline-offset:3px}.ball.done{background:#64748b!important;color:#fff}.ball.done:after{content:"✓";position:absolute;right:-3px;top:-5px;background:#b7f171;color:#064e3b;width:17px;height:17px;border-radius:50%;font-size:12px;display:grid;place-items:center;border:2px solid white}.field-foot{padding:12px 18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.side-content{padding:18px}.instructions{background:#eff9f1;border:1px solid #d9efdf;border-radius:15px;padding:14px;font-size:14px;line-height:1.55}.instructions strong{color:var(--deep)}.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;font-size:12px;color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.btn{border:0;border-radius:12px;padding:11px 15px;font-weight:800;cursor:pointer;font:inherit;font-size:14px;transition:transform .15s,filter .15s}.btn:hover{filter:brightness(1.04);transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}.primary{background:var(--green);color:white}.secondary{background:#e8f4ec;color:var(--deep);border:1px solid #cfe5d7}.warning{background:#fff0d9;color:#7a4300}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.modal-backdrop{position:fixed;inset:0;background:#09291fd9;display:none;align-items:center;justify-content:center;padding:16px;z-index:20;overflow:auto}.modal-backdrop.show{display:flex}.modal{background:white;border-radius:24px;max-width:720px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 25px 80px #0004}.modal-top{padding:20px 22px;background:linear-gradient(120deg,var(--deep),var(--green));color:white;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.modal-top h2{margin:0;font-size:20px}.modal-top p{margin:5px 0 0;color:#d6f5e4;font-size:13px}.close{border:0;background:#ffffff20;color:white;width:36px;height:36px;border-radius:10px;font-size:22px;cursor:pointer}.modal-body{padding:22px}.q-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.pill{font-size:12px;font-weight:800;padding:6px 9px;border-radius:999px;background:#e7f6eb;color:var(--deep)}.pill.orange{background:#fff0d9;color:#8a4a00}.question{font-size:19px;line-height:1.5;font-weight:750;margin:0 0 18px}.options{display:grid;gap:10px}.option{display:flex;gap:11px;align-items:flex-start;text-align:left;padding:13px 14px;border:1.5px solid #dbe8df;background:#fbfdfb;border-radius:14px;cursor:pointer;color:var(--ink);font:inherit;line-height:1.4}.option .letter{flex:0 0 28px;height:28px;border-radius:9px;background:#e7f5eb;color:var(--deep);display:grid;place-items:center;font-weight:900}.option.selected{border-color:var(--green);background:#effaf2;box-shadow:0 0 0 2px #087f5b15}.option.correct{border-color:#1b9b5c;background:#e7f9ed}.option.wrong{border-color:#d66;background:#fff0ef}.option:disabled{cursor:default}.field-label{display:block;font-weight:800;font-size:14px;margin:16px 0 7px}.answer-area{width:100%;min-height:100px;resize:vertical;border:1.5px solid #d5e5db;border-radius:13px;padding:12px;font:inherit;line-height:1.5}.answer-area:focus{outline:3px solid #087f5b20;border-color:var(--green)}.feedback{margin-top:16px;padding:14px;border-radius:14px;line-height:1.5}.feedback.good{background:#e8f8ee;border:1px solid #bfe8cd}.feedback.bad{background:#fff2e6;border:1px solid #f3d2aa}.feedback h4{margin:0 0 5px}.feedback p{margin:5px 0}.rubric{background:#f4f8f5;border:1px solid var(--line);border-radius:14px;padding:13px;margin-top:13px;font-size:13px;line-height:1.5}.modal-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}.modal-actions .btn{flex:1 1 140px}.result{display:none;margin-top:20px}.result.show{display:block}.result-banner{background:linear-gradient(120deg,var(--deep),var(--green));color:white;padding:26px;border-radius:22px;text-align:center}.result-banner h2{font-size:clamp(25px,5vw,36px);margin:0 0 6px}.result-banner p{margin:0;color:#d6f5e4}.result-score{font-size:54px;font-weight:900;margin:12px 0 0}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}.result-card{padding:16px;background:white;border:1px solid var(--line);border-radius:16px}.result-card small{display:block;color:var(--muted);font-weight:700}.result-card strong{font-size:24px;color:var(--deep)}.table-wrap{overflow:auto;margin-top:16px}.result-table{width:100%;border-collapse:collapse;background:white;font-size:13px}.result-table th,.result-table td{padding:10px;border-bottom:1px solid var(--line);text-align:left}.result-table th{background:#eff8f1}.toast{position:fixed;bottom:18px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#123d2d;color:white;padding:12px 17px;border-radius:12px;box-shadow:0 8px 30px #0002;transition:.25s;z-index:40;font-size:14px}.toast.show{opacity:1;transform:translate(-50%,0)}footer{text-align:center;color:var(--muted);font-size:12px;padding:18px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.playfield{height:520px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.side-content{padding:15px}}
+@media(max-width:480px){header{padding:18px 14px}.logo{width:44px;height:44px;border-radius:14px}.brand h1{font-size:25px}.tag{font-size:11px}.playfield{min-height:440px;height:480px}.ball{width:42px;height:42px;font-size:12px}.stat{padding:12px}.stat .value{font-size:22px}.modal-body{padding:17px}.modal-top{padding:17px}.question{font-size:17px}.result-grid{grid-template-columns:1fr 1fr}.result-grid .result-card:last-child{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div class="brand"><div class="logo" aria-hidden="true">B</div><div><h1>BounceQuiz AI</h1><p>Belajar aktif • Tantangan geologi lapangan</p></div></div>
+    <div class="tag">ASESMEN FORMATIF · SMK KELAS X</div>
+  </div>
+</header>
+<main>
+  <section class="intro">
+    <div><h2>Jelajahi Geologi Lapangan!</h2><p>Pilih bola yang bergerak untuk membuka satu tantangan. Selesaikan semua 27 soal.</p></div>
+    <button class="btn secondary" id="showInstructions">Petunjuk Bermain</button>
+  </section>
+  <section class="stats" aria-label="Statistik permainan">
+    <div class="stat"><div class="label">Progress</div><div class="value" id="progressText">0 / 27</div><div class="progress-track"><div class="progress-fill" id="progressFill"></div></div></div>
+    <div class="stat"><div class="label">Skor Benar / Sangat Tepat</div><div class="value" id="correctText">0</div></div>
+    <div class="stat"><div class="label">Total Poin</div><div class="value" id="pointsText">0</div></div>
+    <div class="stat"><div class="label">Belum Dikerjakan</div><div class="value" id="remainingText">27</div></div>
+  </section>
+  <div class="layout" id="gameLayout">
+    <section class="panel">
+      <div class="panel-head"><h3>Area Permainan</h3><small>27 bola · 27 soal unik</small></div>
+      <div class="playfield" id="playfield" aria-label="Area bola kuis"></div>
+      <div class="field-foot"><span>🟢 Belum dikerjakan</span><span>✓ Selesai</span><span>Ketuk bola untuk memilih</span></div>
+    </section>
+    <aside class="panel">
+      <div class="panel-head"><h3>Petunjuk & Aturan</h3></div>
+      <div class="side-content">
+        <div class="instructions" id="instructionText"><strong>Cara bermain</strong><br>1. Klik salah satu bola bernomor.<br>2. Jawab pertanyaan yang muncul.<br>3. Pilihan ganda dinilai otomatis; jawaban terbuka dinilai guru dengan rubrik.<br>4. Setiap soal hanya dapat diselesaikan satu kali.</div>
+        <div class="legend"><span><i class="dot" style="background:#0e9f6e"></i>Belum dikerjakan</span><span><i class="dot" style="background:#64748b"></i>Selesai</span></div>
+        <div class="actions"><button class="btn primary" id="nextBall">Pilih Soal Berikutnya</button><button class="btn secondary" id="resetGame">Mulai Ulang</button></div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:14px">Catatan guru: untuk Oral Answer, dengarkan penjelasan siswa lalu pilih skor berdasarkan indikator dan rubrik yang tersedia.</p>
+      </div>
+    </aside>
+  </div>
+  <section class="result" id="resultPanel">
+    <div class="result-banner"><h2>BounceQuiz Selesai!</h2><p>Semua tantangan telah diselesaikan dan dinilai.</p><div class="result-score" id="finalScore">0</div><div>Nilai Akhir / 100</div></div>
+    <div class="result-grid">
+      <div class="result-card"><small>Jumlah Soal</small><strong id="resultTotal">27</strong></div>
+      <div class="result-card"><small>Benar / Sangat Tepat</small><strong id="resultCorrect">0</strong></div>
+      <div class="result-card"><small>Salah / Belum Tepat</small><strong id="resultWrong">0</strong></div>
+      <div class="result-card"><small>Sebagian Benar</small><strong id="resultPartial">0</strong></div>
+      <div class="result-card"><small>Total Poin</small><strong id="resultPoints">0</strong></div>
+      <div class="result-card"><small>Penyelesaian</small><strong>100%</strong></div>
+    </div>
+    <div class="panel" style="padding:18px"><h3 style="margin:0 0 8px">Umpan Balik Pembelajaran</h3><p id="resultFeedback" style="line-height:1.6;margin:0"></p><div class="actions"><button class="btn primary" id="playAgain">Main Lagi</button><button class="btn secondary" id="toggleRecap">Lihat Rekap</button><button class="btn secondary" id="downloadCsv">Unduh Rekap CSV</button></div><div class="table-wrap" id="recapWrap" hidden><table class="result-table"><thead><tr><th>No.</th><th>Jenis</th><th>Topik</th><th>Skor</th><th>Status</th></tr></thead><tbody id="recapBody"></tbody></table></div></div>
+  </section>
+</main>
+<footer>BounceQuiz AI · Media asesmen formatif Geologi Lapangan · SMK Kelas X</footer>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-top"><div><h2 id="modalTitle">Soal</h2><p id="modalSubtitle">Geologi Lapangan · Kelas X</p></div><button class="close" id="closeModal" aria-label="Tutup soal">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+const QUESTIONS = [
+{id:1,type:"multiple-choice",difficulty:"Mudah",topic:"Tujuan geologi lapangan",question:"Apa tujuan utama kegiatan geologi lapangan?",options:["Mengamati dan mencatat kondisi geologi secara langsung","Mengubah semua batuan menjadi mineral baru","Menentukan cuaca untuk satu tahun penuh","Mengambil sampel sebanyak mungkin tanpa pencatatan"],correctAnswer:"A",explanation:"Geologi lapangan dilakukan untuk mengamati, mengukur, mendeskripsikan, dan mencatat kondisi geologi di lokasi secara sistematis.",indicator:"Memahami tujuan kegiatan geologi lapangan.",expectedAnswer:"Pengamatan dan pencatatan kondisi geologi secara langsung.",rubric:"100: menjelaskan pengamatan dan pencatatan geologi dengan tepat; 50: menyebut pengamatan tanpa penjelasan; 0: jawaban tidak relevan."},
+{id:2,type:"multiple-choice",difficulty:"Mudah",topic:"Peralatan lapangan",question:"Alat yang umum digunakan untuk mengamati mineral atau tekstur batuan secara lebih dekat adalah ...",options:["Loupe atau lup geologi","Termometer ruangan","Busur derajat sekolah saja","Kalkulator"],correctAnswer:"A",explanation:"Lup geologi membantu mengamati butiran mineral dan tekstur batuan yang terlalu kecil untuk dilihat jelas dengan mata telanjang.",indicator:"Mengidentifikasi fungsi peralatan geologi.",expectedAnswer:"Lup geologi digunakan untuk memperbesar detail mineral atau tekstur batuan.",rubric:"100: menyebut lup dan fungsinya; 50: menyebut alat tanpa fungsi tepat; 0: jawaban tidak tepat."},
+{id:3,type:"multiple-choice",difficulty:"Mudah",topic:"K3 lapangan",question:"Sebelum memasuki singkapan berbatu yang licin, tindakan paling tepat adalah ...",options:["Berlari agar cepat melewati lokasi","Memastikan alas kaki sesuai, menilai bahaya, dan mengikuti arahan keselamatan","Bekerja sendirian agar tidak terganggu","Mengabaikan kondisi cuaca"],correctAnswer:"B",explanation:"Penilaian bahaya, alas kaki yang sesuai, dan kepatuhan pada instruksi K3 mengurangi risiko terpeleset atau cedera.",indicator:"Memilih tindakan keselamatan dasar.",expectedAnswer:"Menilai bahaya, memakai APD sesuai, dan mengikuti instruksi.",rubric:"100: menyebut penilaian bahaya dan tindakan pencegahan; 50: menyebut satu tindakan; 0: tindakan tidak aman."},
+{id:4,type:"multiple-choice",difficulty:"Mudah",topic:"Jenis batuan",question:"Batuan yang terbentuk dari pembekuan magma atau lava disebut batuan ...",options:["Sedimen","Metamorf","Beku","Organik"],correctAnswer:"C",explanation:"Batuan beku terbentuk ketika magma di bawah permukaan atau lava di permukaan mendingin dan membeku.",indicator:"Mengenali kelompok utama batuan.",expectedAnswer:"Batuan beku.",rubric:"100: menjawab benar dan dapat menjelaskan prosesnya; 50: mengenali istilah dengan penjelasan kurang; 0: salah."},
+{id:5,type:"multiple-choice",difficulty:"Mudah",topic:"Catatan lapangan",question:"Mengapa pengamat perlu mencatat lokasi pengamatan pada buku lapangan?",options:["Agar catatan terlihat lebih panjang","Agar data dapat ditelusuri kembali dan dikaitkan dengan tempatnya","Agar tidak perlu mengambil foto","Agar semua batuan dianggap sama"],correctAnswer:"B",explanation:"Informasi lokasi, misalnya koordinat atau penanda tempat, membantu memeriksa ulang dan menafsirkan data secara benar.",indicator:"Memahami pentingnya dokumentasi lokasi.",expectedAnswer:"Untuk menelusuri dan menghubungkan data dengan lokasi pengamatan.",rubric:"100: menjelaskan keterlacakan data; 50: menyebut lokasi penting tanpa alasan; 0: tidak tepat."},
+{id:6,type:"multiple-choice",difficulty:"Mudah",topic:"Batuan sedimen",question:"Batuan sedimen umumnya terbentuk melalui proses ...",options:["Pembekuan lava saja","Pengendapan material yang kemudian mengalami pemadatan dan/atau sementasi","Peleburan semua batuan menjadi magma","Penguapan logam di udara"],correctAnswer:"B",explanation:"Banyak batuan sedimen terbentuk dari material yang diendapkan, lalu mengalami pemadatan dan sementasi. Ada pula sedimen kimia dan organik.",indicator:"Memahami proses umum pembentukan batuan sedimen.",expectedAnswer:"Pengendapan, diikuti pemadatan dan/atau sementasi.",rubric:"100: menyebut proses dengan tepat; 50: hanya menyebut pengendapan; 0: salah."},
+{id:7,type:"multiple-choice",difficulty:"Mudah",topic:"Dokumentasi singkapan",question:"Saat memotret singkapan untuk dokumentasi geologi, apa yang membantu memperkirakan ukuran objek pada foto?",options:["Meletakkan benda pembanding ukuran dengan aman dan tanpa menutupi fitur penting","Mengambil foto dari jarak sangat jauh tanpa keterangan","Mengedit warna batuan hingga berbeda","Tidak mencatat arah pengambilan foto"],correctAnswer:"A",explanation:"Skala pembanding yang sesuai, seperti penggaris atau palu geologi yang diletakkan aman, membantu pembaca memperkirakan ukuran fitur.",indicator:"Memilih teknik dokumentasi yang informatif.",expectedAnswer:"Menyertakan skala pembanding yang aman.",rubric:"100: menyebut skala dan tujuan; 50: menyebut benda pembanding; 0: salah."},
+{id:8,type:"multiple-choice",difficulty:"Mudah",topic:"Pengamatan warna",question:"Ketika mendeskripsikan warna batuan, praktik yang paling baik adalah ...",options:["Menggunakan istilah warna yang jelas dan mencatat kondisi pengamatan","Menebak warna dari ingatan beberapa hari kemudian","Mengganti warna berdasarkan dugaan asal batuan","Menggunakan satu warna untuk semua sampel"],correctAnswer:"A",explanation:"Deskripsi warna yang konsisten dan dicatat saat pengamatan membuat data lebih dapat dibandingkan. Kondisi basah atau kering juga dapat memengaruhi warna tampak.",indicator:"Menerapkan pengamatan sistematis.",expectedAnswer:"Mencatat warna secara jelas saat pengamatan dan mempertimbangkan kondisi sampel.",rubric:"100: menjelaskan pencatatan langsung dan kondisi sampel; 50: hanya menyebut warna; 0: salah."},
+{id:9,type:"multiple-choice",difficulty:"Sedang",topic:"Singkapan batuan",question:"Sebuah singkapan memperlihatkan lapisan batuan yang berulang dan relatif sejajar. Informasi awal apa yang paling tepat dicatat?",options:["Warna langit saat tiba","Ketebalan, kemiringan, urutan lapisan, dan hubungan antar lapisan yang terlihat","Kesimpulan umur batuan tanpa data","Nama batuan berdasarkan satu ciri saja"],correctAnswer:"B",explanation:"Pengamatan lapisan sebaiknya mencakup geometri, ketebalan, orientasi, urutan, dan hubungan antar lapisan sebelum membuat interpretasi.",indicator:"Memilih data penting pada pengamatan lapisan.",expectedAnswer:"Mencatat ketebalan, orientasi, urutan, dan hubungan lapisan.",rubric:"100: menyebut beberapa parameter relevan; 50: menyebut satu atau dua; 0: tidak relevan."},
+{id:10,type:"multiple-choice",difficulty:"Sedang",topic:"Batuan metamorf",question:"Batuan asal mengalami perubahan mineral atau tekstur karena tekanan dan suhu tinggi tanpa melebur seluruhnya. Proses ini disebut ...",options:["Sedimentasi","Pelapukan mekanik","Metamorfisme","Kristalisasi es"],correctAnswer:"C",explanation:"Metamorfisme mengubah mineralogi atau tekstur batuan akibat perubahan kondisi fisik-kimia, umumnya tanpa peleburan menyeluruh.",indicator:"Memahami proses metamorfisme.",expectedAnswer:"Metamorfisme.",rubric:"100: benar disertai penjelasan; 50: istilah benar tanpa penjelasan; 0: salah."},
+{id:11,type:"multiple-choice",difficulty:"Sedang",topic:"Penggunaan kompas geologi",question:"Saat mengukur orientasi bidang perlapisan, mengapa kompas geologi perlu digunakan sesuai petunjuk dan dijauhkan dari benda logam atau magnet kuat?",options:["Agar alat menjadi lebih berat","Karena gangguan magnetik dapat memengaruhi pembacaan arah","Agar lapisan batuan berubah arah","Karena semua kompas mengukur suhu"],correctAnswer:"B",explanation:"Benda feromagnetik atau magnet kuat di dekat kompas dapat mengganggu jarum dan menghasilkan pembacaan arah yang keliru.",indicator:"Memahami faktor yang memengaruhi pengukuran arah.",expectedAnswer:"Gangguan magnetik dapat menyebabkan pembacaan arah tidak akurat.",rubric:"100: menjelaskan gangguan magnetik dan dampaknya; 50: menyebut pembacaan terganggu; 0: salah."},
+{id:12,type:"multiple-choice",difficulty:"Sedang",topic:"Pengambilan sampel",question:"Sebelum mengambil sampel batuan dari singkapan, siswa sebaiknya ...",options:["Memastikan izin dan keselamatan, memberi label, serta mencatat lokasi sampel","Mengambil sampel dari lokasi mana saja tanpa izin","Membuang label setelah sampel dikumpulkan","Memukul batuan ke arah teman agar cepat terlepas"],correctAnswer:"A",explanation:"Pengambilan sampel harus aman, sesuai izin dan arahan, serta disertai label dan catatan agar asal sampel tidak tertukar.",indicator:"Menerapkan prosedur pengambilan sampel yang aman.",expectedAnswer:"Memastikan izin/K3 dan memberi label serta mencatat lokasi.",rubric:"100: menyebut keselamatan/izin dan dokumentasi; 50: menyebut salah satunya; 0: tindakan tidak aman."},
+{id:13,type:"multiple-choice",difficulty:"Sedang",topic:"Tekstur batuan beku",question:"Batuan beku dengan kristal yang relatif besar umumnya menunjukkan bahwa magma ...",options:["Mendingin relatif lambat sehingga kristal sempat tumbuh","Selalu membeku dalam beberapa detik","Tidak pernah mengandung mineral","Terbentuk hanya dari pengendapan cangkang"],correctAnswer:"A",explanation:"Pendinginan yang relatif lambat, umumnya di bawah permukaan, memberi waktu lebih lama bagi kristal mineral untuk tumbuh.",indicator:"Menghubungkan tekstur batuan dengan proses pembentukan.",expectedAnswer:"Magma mendingin relatif lambat.",rubric:"100: benar dengan alasan; 50: jawaban benar tanpa alasan; 0: salah."},
+{id:14,type:"multiple-choice",difficulty:"Sedang",topic:"Peta geologi",question:"Apa fungsi legenda pada peta geologi?",options:["Menentukan berat peta","Menjelaskan arti simbol, warna, atau pola yang digunakan pada peta","Menggantikan seluruh catatan lapangan","Menunjukkan prakiraan cuaca"],correctAnswer:"B",explanation:"Legenda membantu pembaca memahami simbol, warna, pola, dan satuan geologi yang ditampilkan pada peta.",indicator:"Memahami komponen peta geologi.",expectedAnswer:"Menjelaskan arti simbol dan warna peta.",rubric:"100: menjelaskan fungsi legenda; 50: menyebut legenda sebagai keterangan; 0: salah."},
+{id:15,type:"multiple-choice",difficulty:"Sedang",topic:"Kualitas data",question:"Dua siswa mencatat warna batuan yang berbeda pada lokasi yang sama. Langkah terbaik untuk menindaklanjuti perbedaan tersebut adalah ...",options:["Memilih catatan siswa yang paling senior tanpa memeriksa","Menghapus kedua catatan","Mengamati kembali sampel pada kondisi yang jelas dan menyepakati deskripsi berdasarkan bukti","Mengubah data agar sama tanpa pengamatan"],correctAnswer:"C",explanation:"Perbedaan data perlu diperiksa dengan pengamatan ulang, kriteria deskripsi yang konsisten, dan pencatatan kondisi sampel.",indicator:"Menilai kualitas dan konsistensi data lapangan.",expectedAnswer:"Melakukan pengamatan ulang dan mendeskripsikan berdasarkan bukti.",rubric:"100: menyarankan verifikasi berbasis bukti; 50: menyarankan diskusi tanpa verifikasi; 0: memanipulasi data."},
+{id:16,type:"multiple-choice",difficulty:"Sedang",topic:"Keselamatan singkapan",question:"Saat menemukan tebing batuan yang retak dan terdapat material longgar di atasnya, tindakan paling aman adalah ...",options:["Mendekat tepat di bawah material longgar","Menghindari zona bahaya, memberi tahu guru/pembimbing, dan mengikuti arahan","Memanjat untuk memeriksa retakan dari dekat tanpa alat","Meminta teman berdiri di bawah tebing"],correctAnswer:"B",explanation:"Material longgar dapat jatuh tanpa peringatan. Hindari area berbahaya dan laporkan kepada penanggung jawab kegiatan.",indicator:"Menganalisis risiko keselamatan lapangan.",expectedAnswer:"Menjauh dari zona bahaya dan melaporkan kepada pembimbing.",rubric:"100: menyebut penghindaran dan pelaporan; 50: hanya menyebut menjauh; 0: memilih tindakan berbahaya."},
+{id:17,type:"multiple-choice",difficulty:"Sedang",topic:"Struktur geologi",question:"Garis-garis sejajar yang tampak pada permukaan batuan dapat menjadi petunjuk adanya struktur. Apa langkah awal yang tepat sebelum menyimpulkan jenis strukturnya?",options:["Mencatat orientasi, bentuk, hubungan dengan batuan sekitar, dan bukti pendukung","Langsung memberi nama struktur tanpa pengukuran","Menganggap semua garis adalah sesar","Menyimpulkan umur batuan dari warna saja"],correctAnswer:"A",explanation:"Interpretasi struktur perlu didasarkan pada deskripsi dan bukti, termasuk orientasi serta hubungan fitur dengan batuan sekitarnya.",indicator:"Menggunakan bukti pengamatan sebelum interpretasi.",expectedAnswer:"Mendeskripsikan dan mengukur fitur sebelum menyimpulkan.",rubric:"100: menyebut deskripsi/pengukuran dan bukti; 50: hanya menyebut pengamatan; 0: menyimpulkan tanpa bukti."},
+{id:18,type:"multiple-choice",difficulty:"Sedang",topic:"Pencatatan koordinat",question:"Mengapa format koordinat dan sistem referensinya perlu dicatat dengan konsisten?",options:["Agar angka terlihat seragam saja","Agar posisi lokasi dapat dibaca dan dibandingkan dengan benar","Agar koordinat dapat diubah sesuai keinginan","Agar tidak perlu mencatat nama lokasi"],correctAnswer:"B",explanation:"Format dan sistem referensi yang konsisten mencegah salah tafsir posisi ketika data dipetakan atau digabungkan.",indicator:"Memahami ketelitian pencatatan lokasi.",expectedAnswer:"Agar posisi dapat ditafsirkan dan dipetakan secara benar.",rubric:"100: menjelaskan konsistensi untuk ketepatan posisi; 50: menyebut agar mudah dibaca; 0: salah."},
+{id:19,type:"multiple-choice",difficulty:"Sedang",topic:"Genesa batuan",question:"Sebuah batuan menunjukkan fragmen berbagai ukuran yang menyatu dalam matriks. Informasi tambahan apa yang paling membantu menilai apakah batuan tersebut sedimen klastik?",options:["Warna langit pada hari pengamatan","Bentuk dan ukuran fragmen, pemilahan, kebundaran, serta jenis matriks atau semen","Jumlah kendaraan yang lewat","Nama orang yang pertama melihat batuan"],correctAnswer:"B",explanation:"Ciri fragmen, pemilahan, kebundaran, matriks, dan semen membantu mendeskripsikan serta menafsirkan batuan sedimen klastik.",indicator:"Menganalisis ciri tekstur batuan sedimen.",expectedAnswer:"Mengamati fragmen, pemilahan, kebundaran, matriks, dan semen.",rubric:"100: menyebut beberapa ciri diagnostik; 50: menyebut satu atau dua ciri; 0: tidak relevan."},
+{id:20,type:"oral-answer",difficulty:"Mudah",topic:"Peralatan lapangan",question:"Sebutkan tiga peralatan dasar yang dapat dibawa saat kegiatan geologi lapangan dan jelaskan fungsi masing-masing.",options:[],correctAnswer:null,explanation:"Contoh: kompas geologi untuk mengukur orientasi; lup untuk mengamati mineral; buku lapangan untuk mencatat; palu geologi digunakan hanya sesuai izin dan prosedur keselamatan; GPS/ponsel untuk lokasi bila tersedia.",indicator:"Mengidentifikasi peralatan dan fungsinya.",expectedAnswer:"Menyebut tiga alat yang relevan beserta fungsi yang tepat.",rubric:"100: tiga alat dan fungsi tepat; 50: satu atau dua alat benar atau fungsi kurang lengkap; 0: jawaban tidak relevan."},
+{id:21,type:"oral-answer",difficulty:"Mudah",topic:"K3 lapangan",question:"Jelaskan tiga langkah keselamatan yang perlu dilakukan sebelum dan selama mengamati singkapan batuan.",options:[],correctAnswer:null,explanation:"Jawaban dapat mencakup mengikuti arahan guru/pembimbing, menggunakan APD sesuai, menilai bahaya seperti longsoran atau batuan lepas, menjaga jarak aman, bekerja berpasangan, dan melaporkan kondisi berbahaya.",indicator:"Menjelaskan penerapan K3 dasar.",expectedAnswer:"Tiga tindakan pencegahan yang relevan dan aman.",rubric:"100: tiga langkah tepat disertai alasan; 50: satu atau dua langkah tepat; 0: jawaban tidak aman atau tidak relevan."},
+{id:22,type:"oral-answer",difficulty:"Sedang",topic:"Deskripsi singkapan",question:"Bayangkan kamu menemukan singkapan dengan dua lapisan batuan yang berbeda warna dan ketebalan. Data apa saja yang akan kamu catat sebelum menafsirkan proses pembentukannya?",options:[],correctAnswer:null,explanation:"Catat lokasi, sketsa/foto dengan skala, warna, ketebalan, tekstur, komposisi yang dapat diamati, batas antar lapisan, orientasi, kondisi singkapan, dan hubungan antar lapisan.",indicator:"Merencanakan pencatatan singkapan secara sistematis.",expectedAnswer:"Menyebut lokasi, deskripsi tiap lapisan, ketebalan, batas, orientasi, dan dokumentasi.",rubric:"100: menyebut lima atau lebih data relevan; 50: menyebut dua sampai empat data; 0: jawaban tidak relevan."},
+{id:23,type:"oral-answer",difficulty:"Sedang",topic:"Identifikasi batuan",question:"Jelaskan perbedaan umum batuan beku, sedimen, dan metamorf berdasarkan proses pembentukannya.",options:[],correctAnswer:null,explanation:"Batuan beku berasal dari pembekuan magma/lava; sedimen terbentuk dari pengendapan material atau proses kimia/organik; metamorf merupakan batuan yang berubah mineralogi atau teksturnya akibat kondisi suhu, tekanan, atau fluida tanpa melebur seluruhnya.",indicator:"Membedakan tiga kelompok batuan berdasarkan genesa.",expectedAnswer:"Penjelasan proses pembentukan ketiga kelompok batuan secara tepat.",rubric:"100: ketiga proses dijelaskan benar; 50: dua proses benar atau penjelasan sebagian; 0: sebagian besar salah."},
+{id:24,type:"oral-answer",difficulty:"Sedang",topic:"Pengukuran orientasi",question:"Mengapa pengukuran arah dan kemiringan lapisan batuan perlu dilakukan dengan cermat? Jelaskan bagaimana data tersebut dapat membantu memahami kondisi geologi.",options:[],correctAnswer:null,explanation:"Orientasi membantu mendeskripsikan kedudukan lapisan secara konsisten, membandingkan lokasi, membuat peta atau penampang, dan mendukung interpretasi struktur. Pengukuran harus mengikuti prosedur alat dan dicatat dengan satuan/konvensi yang benar.",indicator:"Menjelaskan manfaat data orientasi lapisan.",expectedAnswer:"Menjelaskan ketelitian pengukuran dan kegunaan data untuk deskripsi, pemetaan, atau interpretasi.",rubric:"100: menjelaskan ketelitian dan setidaknya dua kegunaan; 50: menjelaskan satu kegunaan; 0: tidak relevan."},
+{id:25,type:"oral-answer",difficulty:"Menantang",topic:"Interpretasi data lapangan",question:"Dua singkapan pada lokasi berbeda memperlihatkan batuan dengan ciri yang mirip. Data apa yang perlu dibandingkan sebelum menyimpulkan bahwa keduanya merupakan satu satuan batuan yang sama?",options:[],correctAnswer:null,explanation:"Bandingkan lokasi dan hubungan spasial, litologi, tekstur, komposisi, struktur, orientasi, hubungan kontak, bukti stratigrafi, serta data peta atau pengamatan lain. Kemiripan satu ciri saja belum cukup untuk memastikan kesamaan satuan.",indicator:"Menganalisis bukti untuk membandingkan satuan batuan.",expectedAnswer:"Membandingkan beberapa bukti litologi, struktur, hubungan spasial/kontak, dan data pendukung.",rubric:"100: membandingkan beberapa jenis bukti dan menghindari kesimpulan prematur; 50: menyebut dua bukti; 0: hanya mengandalkan satu ciri tanpa pertimbangan."},
+{id:26,type:"oral-answer",difficulty:"Menantang",topic:"Pemecahan masalah K3",question:"Saat praktik lapangan, cuaca memburuk dan jalur pulang mulai licin. Sebagai anggota tim, apa yang akan kamu lakukan dan bagaimana kamu menyampaikan keputusan tersebut?",options:[],correctAnswer:null,explanation:"Hentikan kegiatan bila kondisi tidak aman, beri tahu guru/pembimbing, komunikasikan kondisi secara jelas kepada tim, ikuti rencana evakuasi atau jalur aman, tetap bersama kelompok, dan jangan mengambil risiko untuk menyelesaikan pengamatan.",indicator:"Menerapkan penilaian risiko dan komunikasi keselamatan.",expectedAnswer:"Menghentikan atau menyesuaikan kegiatan, melapor, mengikuti instruksi, dan menjaga keselamatan kelompok.",rubric:"100: keputusan aman, komunikasi jelas, dan tindakan lanjutan tepat; 50: keputusan cukup aman tetapi langkah kurang lengkap; 0: memilih melanjutkan tindakan berbahaya."},
+{id:27,type:"oral-answer",difficulty:"Menantang",topic:"Interpretasi dan dokumentasi",question:"Kamu menemukan lapisan batuan yang tampak miring, tetapi foto dan catatan awal belum memiliki skala maupun orientasi. Jelaskan langkah yang perlu dilakukan untuk memperbaiki kualitas data sebelum membuat interpretasi.",options:[],correctAnswer:null,explanation:"Jika aman dan diizinkan, lakukan pengamatan ulang; catat lokasi dan orientasi; ukur kedudukan lapisan dengan prosedur yang benar; ambil foto dengan skala dan arah pandang; buat sketsa; catat ketidakpastian; lalu interpretasikan berdasarkan data yang memadai.",indicator:"Mengevaluasi kelengkapan data sebelum interpretasi.",expectedAnswer:"Melengkapi lokasi, skala, orientasi, pengukuran, sketsa/foto, dan mencatat ketidakpastian.",rubric:"100: mengusulkan verifikasi dan beberapa perbaikan dokumentasi; 50: menyebut beberapa perbaikan tetapi tidak lengkap; 0: langsung menyimpulkan tanpa memperbaiki data."}
+];
+
+const state = {done:new Map(),activeId:null,selected:null,animating:true};
+const $ = id => document.getElementById(id);
+const playfield = $("playfield");
+let balls = [];
+let toastTimer;
+function validateQuestions(){
+  if(QUESTIONS.length!==27) throw new Error("Jumlah soal harus tepat 27.");
+  const ids = new Set(QUESTIONS.map(q=>q.id));
+  if(ids.size!==27 || !Array.from({length:27},(_,i)=>i+1).every(n=>ids.has(n))) throw new Error("Nomor soal tidak valid.");
+  if(QUESTIONS.filter(q=>q.type==="multiple-choice").length!==19 || QUESTIONS.filter(q=>q.type==="oral-answer").length!==8) throw new Error("Distribusi jenis soal tidak valid.");
+  for(const q of QUESTIONS){
+    if(!q.question || !q.explanation || !q.indicator || !q.rubric) throw new Error("Data soal tidak lengkap: "+q.id);
+    if(q.type==="multiple-choice" && (!Array.isArray(q.options)||q.options.length!==4||!["A","B","C","D"].includes(q.correctAnswer))) throw new Error("Pilihan/kunci soal tidak valid: "+q.id);
+    if(q.type==="oral-answer" && !q.expectedAnswer) throw new Error("Indikator jawaban terbuka tidak lengkap: "+q.id);
+  }
+}
+function toast(message){const el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2600)}
+function makeBalls(){
+  playfield.innerHTML="";balls=[];
+  const w=playfield.clientWidth,h=playfield.clientHeight,size=window.innerWidth<480?42:48;
+  const colors=["#0e9f6e","#168aad","#6c63ff","#e58e26","#0f766e","#3b82a0","#8b5cf6"];
+  QUESTIONS.forEach((q,i)=>{
+    const el=document.createElement("button");el.type="button";el.className="ball";el.textContent=q.id;el.setAttribute("aria-label","Bola "+q.id+(state.done.has(q.id)?", selesai":", buka soal"));el.style.background=colors[i%colors.length];el.dataset.id=q.id;
+    const x=Math.random()*Math.max(1,w-size),y=Math.random()*Math.max(1,h-size);
+    const angle=Math.random()*Math.PI*2,speed=0.45+Math.random()*0.75;
+    const b={id:q.id,el,x,y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,size};balls.push(b);playfield.appendChild(el);
+    el.addEventListener("click",()=>openQuestion(q.id));
+    if(state.done.has(q.id))markBallDone(q.id);
+    el.style.left=x+"px";el.style.top=y+"px";
+  });
+}
+function markBallDone(id){const b=balls.find(x=>x.id===id);if(b){b.el.classList.add("done");b.el.setAttribute("aria-label","Bola "+id+", selesai");b.el.title="Soal sudah selesai"}}
+function animate(){
+  if(state.animating){
+    const w=playfield.clientWidth,h=playfield.clientHeight;
+    for(const b of balls){
+      if(state.done.has(b.id))continue;
+      b.x+=b.vx;b.y+=b.vy;
+      if(b.x<=0){b.x=0;b.vx=Math.abs(b.vx)}
+      if(b.y<=0){b.y=0;b.vy=Math.abs(b.vy)}
+      if(b.x+b.size>=w){b.x=Math.max(0,w-b.size);b.vx=-Math.abs(b.vx)}
+      if(b.y+b.size>=h){b.y=Math.max(0,h-b.size);b.vy=-Math.abs(b.vy)}
+      b.el.style.left=b.x+"px";b.el.style.top=b.y+"px";
+    }
+  }
+  requestAnimationFrame(animate);
+}
+function updateStats(){
+  const count=state.done.size;let points=0,correct=0;
+  for(const r of state.done.values()){points+=r.score;if(r.score===100)correct++}
+  $("progressText").textContent=`${count} / ${QUESTIONS.length}`;
+  $("correctText").textContent=correct;
+  $("pointsText").textContent=points;
+  $("remainingText").textContent=QUESTIONS.length-count;
+  $("progressFill").style.width=(count/QUESTIONS.length*100)+"%";
+  if(count===QUESTIONS.length)showResults();
+}
+function openQuestion(id){
+  if(state.done.has(id)){toast("Soal nomor "+id+" sudah selesai dan tidak dapat dibuka kembali.");return}
+  state.activeId=id;state.selected=null;
+  const q=QUESTIONS.find(x=>x.id===id);
+  $("modalTitle").textContent="Bola "+q.id+" · Soal "+q.id;
+  $("modalSubtitle").textContent="Dasar Program Keahlian • Geologi Lapangan • Kelas X";
+  const body=$("modalBody");
+  body.innerHTML="";
+  const meta=document.createElement("div");meta.className="q-meta";
+  meta.innerHTML=`<span class="pill">${q.type==="multiple-choice"?"Multiple Choice":"Oral Answer"}</span><span class="pill orange">Kesulitan: ${q.difficulty}</span><span class="pill">Topik: ${q.topic}</span>`;
+  body.appendChild(meta);
+  const question=document.createElement("p");question.className="question";question.textContent=q.question;body.appendChild(question);
+  if(q.type==="multiple-choice"){
+    const opts=document.createElement("div");opts.className="options";opts.id="options";
+    q.options.forEach((opt,i)=>{
+      const letter="ABCD"[i],button=document.createElement("button");button.type="button";button.className="option";button.dataset.letter=letter;
+      const l=document.createElement("span");l.className="letter";l.textContent=letter;
+      const t=document.createElement("span");t.textContent=opt;
+      button.append(l,t);button.addEventListener("click",()=>{if(state.done.has(id))return;state.selected=letter;opts.querySelectorAll(".option").forEach(x=>x.classList.toggle("selected",x===button))});opts.appendChild(button);
+    });body.appendChild(opts);
+    const actions=document.createElement("div");actions.className="modal-actions";
+    const submit=document.createElement("button");submit.className="btn primary";submit.textContent="Periksa Jawaban";submit.addEventListener("click",()=>submitMC(q));
+    const cancel=document.createElement("button");cancel.className="btn secondary";cancel.textContent="Kembali";cancel.addEventListener("click",closeModal);
+    actions.append(submit,cancel);body.appendChild(actions);
+  } else {
+    const label=document.createElement("label");label.className="field-label";label.htmlFor="oralAnswer";label.textContent="Catatan jawaban siswa (opsional)";body.appendChild(label);
+    const textarea=document.createElement("textarea");textarea.id="oralAnswer";textarea.className="answer-area";textarea.placeholder="Tuliskan ringkasan jawaban siswa atau catatan guru di sini…";body.appendChild(textarea);
+    const guide=document.createElement("div");guide.className="rubric";guide.innerHTML="<strong>Rubrik guru</strong><br>100 poin: benar/sangat tepat.<br>50 poin: sebagian benar/cukup tepat.<br>0 poin: salah/belum tepat.<br><em>Nilai berdasarkan indikator jawaban dan penjelasan siswa.</em>";body.appendChild(guide);
+    const actions=document.createElement("div");actions.className="modal-actions";
+    const indicator=document.createElement("button");indicator.className="btn secondary";indicator.textContent="Tampilkan Indikator Jawaban";indicator.addEventListener("click",()=>{if(body.querySelector("#answerGuide"))return;const box=document.createElement("div");box.id="answerGuide";box.className="feedback";box.innerHTML=`<h4>Indikator dan jawaban acuan</h4><p><strong>Indikator:</strong> ${escapeHtml(q.indicator)}</p><p><strong>Jawaban acuan:</strong> ${escapeHtml(q.expectedAnswer)}</p><p><strong>Pembahasan:</strong> ${escapeHtml(q.explanation)}</p><p><strong>Rubrik:</strong> ${escapeHtml(q.rubric)}</p>`;body.insertBefore(box,actions)});
+    const back=document.createElement("button");back.className="btn secondary";back.textContent="Kembali";back.addEventListener("click",closeModal);
+    actions.append(indicator,back);body.appendChild(actions);
+    const gradeTitle=document.createElement("p");gradeTitle.style.cssText="font-weight:800;margin:20px 0 8px";gradeTitle.textContent="Penilaian guru";body.appendChild(gradeTitle);
+    const grades=document.createElement("div");grades.className="modal-actions";
+    [[100,"100 · Sangat tepat","primary"],[50,"50 · Cukup tepat","warning"],[0,"0 · Belum tepat","secondary"]].forEach(([score,label,cls])=>{
+      const btn=document.createElement("button");btn.className="btn "+cls;btn.textContent=label;btn.addEventListener("click",()=>{
+        if(!confirm(`Simpan nilai ${score} untuk soal ${id}? Soal tidak dapat dinilai ulang pada sesi ini.`))return;
+        finishQuestion(q,score,textarea.value.trim(),null);
+      });grades.appendChild(btn);
+    });body.appendChild(grades);
+  }
+  $("modalBackdrop").classList.add("show");
+  $("modalBackdrop").scrollTop=0;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function submitMC(q){
+  if(!state.selected){toast("Pilih salah satu jawaban terlebih dahulu.");return}
+  const score=state.selected===q.correctAnswer?100:0;
+  const opts=$("options");
+  opts.querySelectorAll(".option").forEach(btn=>{btn.disabled=true;if(btn.dataset.letter===q.correctAnswer)btn.classList.add("correct");if(btn.dataset.letter===state.selected&&score===0)btn.classList.add("wrong")});
+  const actions=$("modalBody").querySelector(".modal-actions");if(actions)actions.remove();
+  const feedback=document.createElement("div");feedback.className="feedback "+(score===100?"good":"bad");
+  feedback.innerHTML=`<h4>${score===100?"Benar! +100 poin":"Belum tepat · 0 poin"}</h4><p><strong>Jawaban benar: ${q.correctAnswer}.</strong> ${escapeHtml(q.options["ABCD".indexOf(q.correctAnswer)])}</p><p>${escapeHtml(q.explanation)}</p>`;
+  $("modalBody").appendChild(feedback);
+  const close=document.createElement("button");close.className="btn primary";close.textContent="Simpan Hasil & Lanjut";close.style.marginTop="16px";close.style.width="100%";close.addEventListener("click",()=>finishQuestion(q,score,"",state.selected));$("modalBody").appendChild(close);
+  // Locking answer buttons prevents repeat attempts; score is stored only when the user confirms.
+}
+function finishQuestion(q,score,answer,selected){
+  if(state.done.has(q.id))return;
+  state.done.set(q.id,{id:q.id,score,answer,selected,type:q.type,topic:q.topic,difficulty:q.difficulty});
+  markBallDone(q.id);updateStats();closeModal();toast("Soal "+q.id+" selesai. Skor: "+score+" poin.");
+}
+function closeModal(){$("modalBackdrop").classList.remove("show");state.activeId=null;state.selected=null}
+function showResults(){
+  $("resultPanel").classList.add("show");
+  const results=[...state.done.values()];const points=results.reduce((s,r)=>s+r.score,0);
+  const exact=results.filter(r=>r.score===100).length,partial=results.filter(r=>r.score===50).length,wrong=results.filter(r=>r.score===0).length;
+  const final=Math.round(points/27);
+  $("finalScore").textContent=final;$("resultTotal").textContent=27;$("resultCorrect").textContent=exact;$("resultWrong").textContent=wrong;$("resultPartial").textContent=partial;$("resultPoints").textContent=points;
+  let fb=final>=85?"Sangat baik! Pertahankan kebiasaan mengamati, mencatat data, dan bekerja aman di lapangan.":final>=70?"Hasil baik. Perkuat kembali indikator yang belum konsisten, terutama dengan meninjau pembahasan soal.":final>=50?"Kamu sudah memiliki dasar pemahaman. Pelajari kembali konsep yang belum tepat dan berlatih menghubungkan pengamatan dengan bukti.":"Jadikan hasil ini sebagai titik awal. Tinjau materi dasar, peralatan, deskripsi batuan, dan K3 bersama guru sebelum latihan berikutnya.";
+  $("resultFeedback").textContent=fb+" Hasil asesmen ini merupakan bahan refleksi formatif, bukan satu-satunya ukuran kompetensi.";
+  $("recapBody").innerHTML="";
+  results.sort((a,b)=>a.id-b.id).forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${r.id}</td><td>${r.type==="multiple-choice"?"Pilihan ganda":"Jawaban terbuka"}</td><td>${escapeHtml(r.topic)}</td><td>${r.score}</td><td>${r.score===100?"Sangat tepat":r.score===50?"Cukup tepat":"Belum tepat"}</td>`;$("recapBody").appendChild(tr)});
+  $("resultPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function resetGame(){
+  if(state.done.size && !confirm("Mulai sesi baru? Semua jawaban dan skor pada sesi ini akan dihapus."))return;
+  state.done.clear();state.activeId=null;state.selected=null;$("resultPanel").classList.remove("show");$("recapWrap").hidden=true;$("toggleRecap").textContent="Lihat Rekap";makeBalls();updateStats();window.scrollTo({top:0,behavior:"smooth"});toast("Sesi baru siap dimainkan.");
+}
+$("closeModal").addEventListener("click",closeModal);
+$("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("modalBackdrop").classList.contains("show"))closeModal()});
+$("showInstructions").addEventListener("click",()=>{$("instructionText").scrollIntoView({behavior:"smooth",block:"center"});$("instructionText").style.boxShadow="0 0 0 3px #b7f171";setTimeout(()=>$("instructionText").style.boxShadow="",1200)});
+$("nextBall").addEventListener("click",()=>{const q=QUESTIONS.find(q=>!state.done.has(q.id));if(q)openQuestion(q.id);else showResults()});
+$("resetGame").addEventListener("click",resetGame);$("playAgain").addEventListener("click",resetGame);
+$("toggleRecap").addEventListener("click",()=>{const wrap=$("recapWrap");wrap.hidden=!wrap.hidden;$("toggleRecap").textContent=wrap.hidden?"Lihat Rekap":"Sembunyikan Rekap"});
+$("downloadCsv").addEventListener("click",()=>{
+  const rows=[["Nomor","Jenis","Topik","Kesulitan","Skor","Status","Catatan jawaban"]];
+  [...state.done.values()].sort((a,b)=>a.id-b.id).forEach(r=>rows.push([r.id,r.type==="multiple-choice"?"Pilihan ganda":"Jawaban terbuka",r.topic,r.difficulty,r.score,r.score===100?"Sangat tepat":r.score===50?"Cukup tepat":"Belum tepat",r.answer||""]));
+  const csv=rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="rekap-bouncequiz-geologi-lapangan.csv";a.click();URL.revokeObjectURL(url);
+});
+window.addEventListener("resize",()=>{const w=playfield.clientWidth,h=playfield.clientHeight;balls.forEach(b=>{b.x=Math.min(b.x,Math.max(0,w-b.size));b.y=Math.min(b.y,Math.max(0,h-b.size));b.el.style.left=b.x+"px";b.el.style.top=b.y+"px"})});
+try{validateQuestions();makeBalls();updateStats();animate()}catch(err){document.body.innerHTML="<main><h1>Terjadi kesalahan pada data aplikasi</h1><p>"+escapeHtml(err.message)+"</p></main>";console.error(err)}
+</script>
+</body>
+</html>
